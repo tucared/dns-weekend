@@ -3,6 +3,7 @@ import dataclasses
 import struct
 import random
 import socket
+import argparse
 
 @dataclass
 class DNSHeader:
@@ -45,8 +46,12 @@ def build_query(domain_name, record_type):
     return header_to_bytes(header) + question_to_bytes(question)
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description="Resolve IP for a given domain")
+    parser.add_argument("domain")
+    args = parser.parse_args()
+
     random.seed(1)
-    query = build_query("www.example.com", 1)
+    query = build_query(args.domain, TYPE_A)
 
     # create a UDP socket
     # `socket.AF_INET` means that we're connecting to the internet

@@ -4,6 +4,6 @@ Following Julia Evans walkthrough https://implement-dns.wizardzines.com/book/int
 ## Usage
 
 ```shell
-uv run resolver
+uv run resolver 'example.com'
 ```
 
