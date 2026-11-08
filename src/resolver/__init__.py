@@ -4,6 +4,7 @@ import struct
 import random
 import socket
 import argparse
+from io import BytesIO
 
 @dataclass
 class DNSHeader:
@@ -20,6 +21,14 @@ class DNSQuestion:
     type_: int 
     class_: int 
 
+@dataclass
+class DNSRecord:
+    name: bytes
+    type_: int
+    class_: int
+    ttl: int
+    data: bytes
+
 def header_to_bytes(header):
     fields = dataclasses.astuple(header)
     # there are 6 `H`s because there are 6 fields
@@ -33,6 +42,11 @@ def encode_dns_name(domain_name):
     for part in domain_name.encode("ascii").split(b"."):
         encoded += bytes([len(part)]) + part
     return encoded + b"\x00"
+
+def parse_header(reader):
+    items = struct.unpack("!HHHHHH", reader.read(12))
+    # see "a note on BytesIO" for an explanation of `reader` here
+    return DNSHeader(*items)
 
 TYPE_A = 1
 CLASS_IN = 1
@@ -67,4 +81,5 @@ def main() -> None:
     # so reading 1024 bytes is enough
     response, _ = sock.recvfrom(1024)
 
-    print(response)
+    reader = BytesIO(response)
+    print(parse_header(reader))
